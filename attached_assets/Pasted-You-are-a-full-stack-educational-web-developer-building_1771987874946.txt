@@ -1,0 +1,185 @@
+You are a full-stack educational web developer building a bonus lesson module 
+called "The Springer Protocol" for an existing online course called "The 6th 
+Tool" — a cybernetic-based mental performance training system for baseball 
+players.
+
+---
+
+## CONTEXT: THE 6TH TOOL COURSE ARCHITECTURE
+
+The 6th Tool teaches baseball players that the mind operates like a 
+bio-computer: it can be programmed, debugged, and optimized. The course 
+uses cybernetics, neuroscience, and performance psychology to give players 
+a systematic mental framework. The existing module structure is:
+
+- Module 1: Bio-Computer Foundation (identity & operating system)
+- Module 2: Unconscious Programming (how beliefs are installed)
+- Module 3: Debugging Mental Systems (identifying & removing bad programs)
+- Module 4: Present-State Dominance (temporal decoupling, living in the now)
+- Module 5: Perceptual Training (attention architecture, pitch recognition)
+- Module 6: Physiological Regulation (HRV, breathing, autonomic coherence)
+- Module 7: Daily Maintenance Routines (habits and system upkeep)
+
+The brand voice is: intellectual but accessible, scientific but story-driven, 
+empowering and direct. The audience is serious baseball players ages 14-25 
+and their coaches.
+
+---
+
+## THE TASK
+
+Build a fully designed, self-contained bonus lesson page called:
+
+# "The Springer Protocol: How a 14-Year Pro Discovered the Cybernetic Code 
+   — Without Ever Knowing It"
+
+This page will live inside The 6th Tool course as a bonus module. It must:
+
+1. Feel visually consistent with a high-performance sports tech brand 
+   (dark background, electric accent colors — use #00FFAA as primary accent, 
+   #1A1A2E as background, white body text)
+2. Be fully responsive (mobile-first)
+3. Be a single HTML file with embedded CSS and JavaScript
+4. Include all content sections listed below
+5. Include interactive components as specified
+
+---
+
+## PAGE STRUCTURE & CONTENT REQUIREMENTS
+
+### HERO SECTION
+- Headline: "The Springer Protocol"
+- Subheadline: "A 14-year pro accidentally built a cybernetic system. 
+   Here's how to run it."
+- Brief intro paragraph: Steve Springer played 14 years in professional 
+  baseball — 11 years in Triple-A — and eventually became the mental 
+  skills coach for the Toronto Blue Jays. He never used the word 
+  "cybernetics." But everything he teaches maps directly onto the 
+  bio-computer model at the core of The 6th Tool. This bonus lesson 
+  is the translation layer.
+- A "Module Integration Map" badge showing which 6th Tool modules 
+  this lesson connects to (Modules 1, 2, 3, 4, 5, 6)
+
+### SECTION 1: THE IDENTITY PROBLEM
+- Title: "Two Players. One Body. One Choice."
+- Explain Springer's dual-state model: the Confident Player vs. the 
+  Non-Confident Player
+- Connect it explicitly to The 6th Tool's Module 1 (Bio-Computer 
+  Foundation) — these are two competing operating systems
+- Include a visual toggle/switch UI component that lets the user 
+  click between "Confident OS" and "Non-Confident OS" and see the 
+  different "system outputs" (thoughts, body language, decisions) 
+  for each state. Make this interactive with JavaScript.
+
+### SECTION 2: THE BATTING AVERAGE TRAP
+- Title: "When Your Feedback Loop Is Broken"
+- Explain why batting average is a corrupted feedback mechanism 
+  (measuring the wrong variable = bad system correction)
+- Introduce Quality At-Bats (QABs) as the recalibrated metric
+- Connect to Module 2 (Unconscious Programming) — the unconscious 
+  has been programmed to equate hits with worth
+- Include a "QAB Scorecard" interactive component: a simple form 
+  where players can check off QAB criteria for a plate appearance 
+  (Hard contact, Good pitch to hit, Productive out, Walk, Hit, 
+  Moved runner, Battle with 2 strikes) and get a score + label 
+  ("Elite At-Bat", "Quality At-Bat", "Learning At-Bat")
+
+### SECTION 3: THE FOUR INTENTIONS PROTOCOL
+- Title: "The Pre-Plate Executable: Installing Confidence Before 
+  the Pitch"
+- Present Springer's four intentions as a formal cybernetic 
+  "execution sequence":
+    1. Walk up with 100% confidence (Identity State Activation)
+    2. Hit the ball hard (Process Focus Override)
+    3. Attack the inside part / hunt your speed (Perceptual Narrowing)
+    4. Help the team win (Ego Dissolution / Collective Purpose Load)
+- Connect to Module 3 (Debugging) — this sequence is a conscious 
+  override of fear-based subroutines
+- Include an animated "Loading Sequence" visual that simulates 
+  running these four intentions like a software boot sequence, 
+  triggered by a "RUN PROTOCOL" button
+
+### SECTION 4: OPENING DAY MINDSET
+- Title: "Temporal Decoupling: The Art of Having No Yesterday"
+- Explain the Opening Day Mindset concept
+- Define "Temporal Decoupling" — the deliberate severing of 
+  associative links between past failure states and present 
+  performance bandwidth
+- Connect to Module 4 (Present-State Dominance) and reference 
+  "The Compass of Now" as the philosophical framework
+- Include a short reflection prompt box: "What 'yesterday' are you 
+  carrying into today's at-bat? Type it here — then delete it." 
+  (A text area where the user types, then clicks "RELEASE" and 
+  the text dissolves with a CSS animation)
+
+### SECTION 5: HUNTING SPEEDS — PREDICTIVE PROCESSING
+- Title: "Load the Model Before the Pitch Arrives"
+- Explain predictive processing and why hunting a specific speed 
+  is neurologically superior to "seeing the ball"
+- Connect to Module 5 (Perceptual Training)
+- Include a "Pitch Hunt Selector" UI: a simple interactive tool 
+  where the player selects their count (0-0, 1-0, 0-1, 2-0, 0-2, 
+  etc.) and gets a recommended "hunt strategy" with a brief 
+  explanation for each count
+
+### SECTION 6: THE PHYSIOLOGICAL FLOOR
+- Title: "60-80 BPM: Your Performance Operating Window"
+- Explain Springer's breathing/heart rate principle
+- Connect to HRV, autonomic coherence, and Module 6 
+  (Physiological Regulation)
+- Include a visual "BPM Zone Meter" — a stylized gauge that shows 
+  three zones: Underactivated (below 60), Performance Window 
+  (60-80, highlighted in #00FFAA), Overactivated (above 80)
+- Include a "4-7-8 Breathing Timer" interactive: inhale 4 counts, 
+  hold 7, exhale 8, with a visual breathing circle that expands 
+  and contracts, and a start/stop button
+
+### SECTION 7: PROTOCOL INTEGRATION MAP
+- Title: "How The Springer Protocol Lives Inside The 6th Tool"
+- A visual diagram (CSS/HTML, no external libraries needed) that 
+  shows each Springer concept mapped to its corresponding 6th Tool 
+  module with connecting lines or a table layout
+- This serves as the synthesis/summary of the entire lesson
+
+### CLOSING SECTION
+- Title: "Run The Protocol"
+- A brief closing statement: "Steve Springer didn't need the word 
+  'cybernetics.' He needed 14 years in the grind. You now have both 
+  — the lived wisdom AND the system map. Run the protocol."
+- A "Download Your Springer Protocol Cheat Sheet" button 
+  (generates a printable summary using JavaScript window.print())
+
+---
+
+## TECHNICAL REQUIREMENTS
+
+- Single HTML file with embedded CSS and JS (no external frameworks 
+  except Google Fonts)
+- Use Google Font: "Inter" for body, "Oswald" for headings
+- All interactive components must work without a backend
+- Smooth scroll navigation between sections
+- A sticky top nav bar with section links
+- All animations using CSS transitions or vanilla JS only
+- Mobile responsive with breakpoints at 768px and 480px
+- Each section should have a subtle entrance animation 
+  (fade-in on scroll using IntersectionObserver)
+- Color system:
+    --bg-primary: #1A1A2E
+    --bg-secondary: #16213E
+    --accent: #00FFAA
+    --accent-secondary: #0F3460
+    --text-primary: #FFFFFF
+    --text-secondary: #A0A0B0
+    --danger: #FF4444
+
+---
+
+## QUALITY STANDARD
+
+This page should feel like it belongs on a premium sports performance 
+platform — not a generic course page. Every section should teach, 
+engage, and connect back to The 6th Tool's core framework. The 
+interactive components are not decorative — they are pedagogical 
+tools that make the learning active rather than passive.
+
+Build the complete, production-ready HTML file now.

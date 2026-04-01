@@ -1,0 +1,231 @@
+Replace linear module progression ("watched video → next video") with competency-based 
+advancement ("demonstrated capability → unlock next content").
+
+CORE PRINCIPLE:
+You cannot advance to Module N+1 until you've demonstrated mastery of Module N through 
+verified capability, not just content viewing.
+
+Database Schema:
+```sql
+CREATE TABLE module_mastery_requirements (
+  id UUID PRIMARY KEY,
+  module_id UUID REFERENCES modules(id),
+  requirement_type VARCHAR(50), -- 'worksheet', 'voice_memo', 'video_recording', 'template_submission', 'biometric', 'practice_streak'
+  
+  requirement_description TEXT,
+  verification_criteria JSONB, -- Specific criteria that must be met
+  is_required BOOLEAN DEFAULT TRUE, -- vs. optional bonus mastery
+  
+  points_value INTEGER, -- For achievement system
+  estimated_time_minutes INTEGER
+);
+
+CREATE TABLE user_mastery_progress (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  module_id UUID REFERENCES modules(id),
+  
+  requirements_completed INTEGER DEFAULT 0,
+  requirements_total INTEGER,
+  mastery_percentage DECIMAL(5,2),
+  
+  mastery_achieved BOOLEAN DEFAULT FALSE,
+  mastery_achieved_at TIMESTAMP,
+  
+  next_module_unlocked BOOLEAN DEFAULT FALSE,
+  unlocked_at TIMESTAMP
+);
+
+CREATE TABLE mastery_submissions (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  requirement_id UUID REFERENCES module_mastery_requirements(id),
+  
+  submission_type VARCHAR(50),
+  submission_data JSONB, -- Flexible structure for different submission types
+  file_url TEXT, -- For video/audio uploads
+  
+  submitted_at TIMESTAMP,
+  
+  verification_status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'approved', 'needs_revision', 'rejected'
+  verified_by UUID REFERENCES users(id),
+  verified_at TIMESTAMP,
+  verification_feedback TEXT,
+  
+  revision_count INTEGER DEFAULT 0,
+  resubmitted_at TIMESTAMP
+);
+```
+
+IMPLEMENTATION BY MODULE:
+
+Module 1 Mastery Requirements:
+
+Requirement 1: Brain Mapping Worksheet from Real At-Bat
+- Type: Template submission (brain_mapping)
+- Criteria: 
+  - Must be from actual at-bat (practice or game), not hypothetical
+  - All sections completed (brain system identified, physical signatures noted, pattern recognized, intervention specified)
+  - Voice memo uploaded (60-90 seconds explaining diagnosis)
+- Verification: Admin/coach reviews for depth of understanding vs. superficial responses
+
+Requirement 2: Four-Brain Architecture Quiz
+- Type: Interactive assessment
+- Criteria: 8/10 questions correct demonstrating understanding of which brain system handles which functions
+- Verification: Auto-graded, unlimited attempts allowed (learning through feedback)
+
+Module 2 Mastery Requirements:
+
+Requirement 1: Metastory Creation & Video Submission
+- Type: Template + video recording
+- Criteria:
+  - Completed Metastory using template (all sensory dimensions present)
+  - Video of user reading their Metastory aloud
+  - Self-rated emotional authenticity 8+/10
+  - Video shows genuine engagement (not flat affect/reading mechanically)
+- Verification: Human review for emotional authenticity, sensory richness, present-tense formatting
+- Feedback loop: If authenticity below threshold, guidance provided for revision
+
+Requirement 2: Blocker Body Feeling Check
+- Type: Self-assessment
+- Criteria: User reports BBF intensity when thinking about target
+  - If 0-2/10: Clear to advance
+  - If 3+/10: Must complete at least preliminary RNBR before advancing (prevents building on blocked foundation)
+
+Module 3 Mastery Requirements:
+
+Requirement 1: IAP Discovery Documentation
+- Type: Guided meditation completion + journaling
+- Criteria:
+  - Completed full mortality meditation (minimum 30 minutes)
+  - Detailed journal entry: IAP location, sensation quality, intensity, emotional experience
+  - If biometric available: HRV shift documented
+  - If no biometric: Rich phenomenological description (what became clear about priorities)
+
+Requirement 2: IAP Activation Demonstration
+- Type: Video recording
+- Criteria:
+  - 60-second video showing: baseline state → IAP trigger → state shift description
+  - User articulates what changed (physical sensations, mental state, readiness)
+  - Demonstrates they can activate on command, not just accidentally
+
+Module 4 Mastery Requirements:
+
+Requirement 1: Complete RNBR Worksheet with Verification
+- Type: Template submission
+- Criteria:
+  - All five steps completed (BBF identification → Time Machine → Reframe → Amplification → Integration)
+  - BBF intensity reduction of 4+ points OR certainty increase of 2+ points
+  - If metrics don't show change, requires deeper work before advancing
+- Verification: Review for genuine emotional reframing vs. intellectual exercise
+
+Requirement 2: Post-RNBR Target Assessment
+- Type: Self-assessment
+- Criteria: User reports current BBF and certainty after RNBR
+  - Goal: BBF 0-2/10, Certainty 8+/10 regarding SA Objective
+  - If not achieved, guidance to find earlier root memory or different blocker
+
+Module 5 Mastery Requirements:
+
+Requirement 1: SA Objective Creation with 11-Criteria Verification
+- Type: Template submission
+- Criteria: All 11 criteria met (system auto-validates structure, human verifies desirability authenticity)
+- Special check: Is this YOUR goal or someone else's imposed goal?
+
+Requirement 2: UPL Raising Documentation
+- Type: Assessment + optional RNBR
+- Criteria:
+  - 120% certainty test completed
+  - If certainty at 120% below 8/10: UPL blocker identified and RNBR performed
+  - Evidence of raised UPL (certainty shift documented)
+
+Module 6 Mastery Requirements:
+
+Requirement 1: Complete EPSI with Recording
+- Type: Template + audio recording
+- Criteria:
+  - 300-500 word EPSI narrative (all experiential layers)
+  - Five consecutive readings recorded
+  - Emotional intensity amplification across readings (evaluator listens for increasing engagement)
+
+Requirement 2: Key Elements Translation
+- Type: Template submission
+- Criteria: All key elements from SA Objective translated to 10/10 experiential definitions
+
+Module 7 Mastery Requirements:
+
+Requirement 1: Seven-Day Practice Streak
+- Type: Daily practice completion
+- Criteria: Seven consecutive days with all five phases completed
+- This installs the routine as habit before course "completion"
+
+Requirement 2: Integration Demonstration
+- Type: Video essay (3-5 minutes)
+- Criteria: User explains how all modules integrate, gives specific examples of using techniques, demonstrates understanding of cybernetic principles
+
+PROGRESSION LOGIC:
+```javascript
+// Pseudocode for module unlocking
+function checkModuleAccess(userId, moduleId) {
+  const previousModule = getModule(moduleId - 1);
+  
+  if (moduleId === 1) return true; // Module 1 always accessible
+  
+  const masteryStatus = getUserMasteryProgress(userId, previousModule.id);
+  
+  if (masteryStatus.mastery_achieved) {
+    return true;
+  }
+  
+  return false; // Cannot access until previous module mastered
+}
+
+function calculateMasteryStatus(userId, moduleId) {
+  const requirements = getModuleMasteryRequirements(moduleId);
+  const completed = requirements.filter(req => 
+    userHasCompletedRequirement(userId, req.id)
+  );
+  
+  const percentage = (completed.length / requirements.length) * 100;
+  const masteryAchieved = percentage === 100;
+  
+  if (masteryAchieved && !previouslyAchieved) {
+    unlockNextModule(userId, moduleId + 1);
+    sendCelebrationEmail(userId, moduleId);
+    awardMasteryBadge(userId, moduleId);
+  }
+  
+  return { percentage, masteryAchieved, requirementsCompleted: completed.length };
+}
+```
+
+UI IMPLEMENTATION:
+
+Module Dashboard:
+- Shows all modules in vertical list
+- Modules 2-7 have "lock" icon until previous module mastered
+- Clicking locked module shows: "Complete Module X mastery requirements to unlock"
+- Each module card shows mastery progress: "2 of 3 requirements completed"
+
+Module Page:
+- Lessons available for viewing (educational content)
+- "Mastery Requirements" section prominently displayed
+- Each requirement shows status: Not Started | In Progress | Submitted (Pending Review) | Approved | Needs Revision
+- When all approved: "Module Mastery Achieved!" celebration + next module unlocks
+
+Submission Interface:
+- Clear instructions for each requirement type
+- File upload for videos/audio (max size limits clearly stated)
+- Template integration (pre-filled if user already worked on template)
+- Submission confirmation: "Your submission is under review. We'll notify you within 48 hours."
+
+Generate:
+1. Mastery requirements database and tracking system
+2. Submission upload and storage system (AWS S3 or similar)
+3. Admin verification dashboard for reviewing submissions
+4. Automated verification for objective criteria (quiz scores, completion checks)
+5. User progress dashboard showing mastery status across all modules
+6. Email notifications for submission status changes
+7. Module unlocking logic and UI state management
+8. Achievement/badge system for module mastery
+9. Revision workflow when submissions need improvement

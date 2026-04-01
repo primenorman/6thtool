@@ -1,0 +1,191 @@
+ROLE: You are a senior full-stack developer rebuilding an EdTech course platform.
+Read replit.md first before writing any code.
+
+PHASE 1 GOAL: Build the "Quick Win First" onboarding experience and redesign the dashboard.
+The most important outcome: a brand new user can get real value within 45 minutes of
+signing up, compared to the current 33.5 hours.
+
+CURRENT STATE OF THE APP:
+- Uses Replit auth (confusing, needs replacement)
+- Has a generic dashboard with module list and a confusing practice button
+- All 42 lessons are text-only walls
+- No personalized onboarding flow
+- No clear first action for new users
+
+TARGET STATE AFTER PHASE 1:
+A user should be able to:
+1. Land on the homepage, click "Start Free", and enter the Bio-Computer Diagnostic quiz
+   (NO account required yet — Duolingo pattern: value before registration)
+2. Complete the 5-section quiz and receive a personalized "Mental Performance Profile"
+3. Be shown their recommended path (Fast Track or Deep Dive)
+4. Sign up / create account AFTER seeing their profile
+5. Land on the new dashboard with a clear "TODAY'S MISSION" CTA
+6. Complete the Day 1 Fast Track (3 short lessons, ~45 min)
+7. Log their first certainty rating and earn 150 XP (100 for Quick Start + 50 for first practice)
+8. See their streak start at 1
+
+MUST-HAVES FOR PHASE 1 (build all of these):
+
+[1] SUPABASE AUTH MIGRATION
+Replace existing Replit auth with Supabase Auth.
+- Email/password signup and login
+- Magic link login option ("Login with email link")
+- Session persistence across page refreshes
+- Redirect new users to Bio-Computer Diagnostic
+- Redirect returning users to Dashboard
+- User table in Supabase: id, email, created_at, display_name, position, level_of_play,
+  current_xp, current_level, current_streak, last_practice_date, onboarding_completed
+
+[2] BIO-COMPUTER DIAGNOSTIC QUIZ (pre-registration, 5 sections)
+Build a multi-step quiz flow. Each section is a separate screen with a progress bar at top.
+Do NOT show all questions at once.
+
+SECTION 1 — Performance Profile (5 questions, ~2 min):
+  Q1: "How old are you?" (dropdown: 13-14, 15-16, 17-18, 19-22, 23+)
+  Q2: "What position(s) do you play?" (multi-select: Pitcher, Catcher, 1B, 2B, 3B, SS,
+      OF, DH, Multi-position)
+  Q3: "What level do you play at?" (Youth Rec, Travel Ball, JV, Varsity, College, Pro/MiLB)
+  Q4: "How many years have you played baseball?" (1-3, 4-6, 7-10, 10+)
+  Q5: "How satisfied are you with your mental performance right now?" (slider 1-10)
+
+SECTION 2 — Mental Strengths (6 sliders, ~3 min):
+  Label: "Rate yourself honestly from 1 (needs work) to 10 (elite level)"
+  Sliders for: Focus under pressure | Confidence at the plate | Bounce-back after errors |
+  Handling big game moments | Staying present between at-bats | Controlling pre-game nerves
+
+SECTION 3 — Blocker Identification (checklist, ~3 min):
+  Label: "Check any that sound familiar in your recent games:"
+  Options (checkboxes): "My hands get shaky or tense at the plate" |
+  "My mind goes blank right before I hit" | "I overthink mechanics during at-bats" |
+  "I carry errors into my next at-bat" | "I struggle against pitchers who throw hard" |
+  "I feel different pressure in big games vs. practice" | "I've had a hitting slump I couldn't
+  shake" | "My confidence drops when coaches are watching" |
+  "I feel anxious in late-inning situations"
+
+SECTION 4 — Learning Style (3 questions):
+  Q1: "I learn best from..." (Video explanations / Reading detailed text / Doing exercises /
+      A mix of all three)
+  Q2: "My ideal practice session length is..." (5-10 min quick hits / 15-20 min focused /
+      30+ min deep work)
+  Q3: "When can you practice?" (Morning before school/work / Afternoon/evening / Varies)
+
+SECTION 5 — Priority Goal (2 questions):
+  Q1: "What would most improve your game right now?" (single select — Confidence at the
+      plate / Handling pressure moments / Breaking out of a slump / Pre-game mental prep /
+      Consistency over a full season / Developing an elite mental edge)
+  Q2: "Have you tried mental training before?" (Never / A little / Yes, but it didn't stick /
+      Yes, and it helped)
+
+After quiz completion, show a "GENERATING YOUR MENTAL PERFORMANCE PROFILE" screen
+(2 second animation), then display:
+
+PROFILE OUTPUT SCREEN:
+  - Large header: "Your Bio-Computer Profile: [POSITION] at Level [LEVEL_OF_PLAY]"
+  - 3 "Mental Strength" bars (highest rated areas, green)
+  - 1-2 "Opportunity Zones" (lowest rated areas, amber)
+  - Flagged blockers listed (if any checked in Section 3)
+  - Recommended path: if satisfaction <= 5 OR 3+ blockers: "Fast Track (6 days to your
+    first mental edge)" else: "Deep Dive (complete system in 6 weeks)"
+  - Big CTA button: "Save My Profile & Start Training →"
+  - Clicking this opens the signup modal (NOW ask for account creation)
+
+Store quiz results in Supabase on signup: quiz_results JSONB column on users table.
+
+[3] NEW DASHBOARD DESIGN
+Replace the generic dashboard. Build exactly this layout (mobile-first, then desktop):
+
+TOP SECTION — TODAY'S MISSION:
+  - Bold header: "TODAY'S MISSION"
+  - If daily practice not yet done today: Large green button "START 15-MIN PRACTICE ▶"
+    with subtitle: "[X] hours until your streak breaks" (only show after 6 PM local time)
+  - If daily practice done today: Green checkmark "✓ Practice Complete" and "See you tomorrow"
+  - Streak display: flame icon + number + "day streak"
+
+MIDDLE SECTION — YOUR PROGRESS:
+  - Level badge: "[LEVEL NAME]" (e.g., ROOKIE, PROSPECT)
+  - XP bar: "[current XP] / [next level XP]" with filled progress bar
+  - "Next unlock: [next level reward]" (e.g., "Next: Prospect unlocks Neural Lab")
+
+LOWER SECTION — CONTINUE LEARNING:
+  - Card showing current module + lesson: "Module 2 · Lesson 3 of 5 · ~12 min"
+  - [CONTINUE →] button
+
+BOTTOM SECTION — QUICK ACCESS (icon grid):
+  - [Neural Lab 🧠] [Springer Protocol ⚾] [Templates 📋]
+  - [Audio Library 🎧] [Community 👥]
+  - NOTE: Neural Lab and Springer Protocol are unlocked for ALL users immediately
+    (remove the sequential lock — this is a specific fix from the strategy doc)
+
+[4] DAY 1 FAST TRACK CONTENT STRUCTURE
+Create a new module called "Day 0: Fast Track" that sits ABOVE Module 1 in the course list.
+This is accessible immediately without completing anything else.
+
+Lesson 0.1 — "The Operating System Concept" (~10 min read, structured as below):
+  Layout: 60-second hook → Core concept → One action → Optional deep dive (collapsed)
+  Hook (large text, visible immediately): "Your brain is hardware. You've been running
+  the wrong software. Today you install the right one."
+  Core concept: 3 short paragraphs max on the bio-computer metaphor. Use the analogy:
+  "Most mental training tells you to 'try harder.' That's like deleting files to speed up
+  a slow computer. We go to the source code."
+  Action: "Rate your mental performance confidence right now: [slider 1-10]"
+  This logs their first Certainty Rating baseline.
+  Optional deep dive: [collapsed accordion] Full Cybernetic Transposition explanation.
+
+Lesson 0.2 — "Your First 15-Minute Practice" (~15 min guided):
+  This is the daily routine preview. Structure:
+  - Step 1 (3 min): "Find a quiet spot. Close your eyes. Take 3 deep breaths."
+    Display a simple breath timer (4 counts in, 7 hold, 8 out)
+  - Step 2 (5 min): "Think of your best recent at-bat. One specific moment.
+    Write 3 words that describe how you felt." → Text input, saved to their profile.
+  - Step 3 (5 min): "Now rate these on a 1-10 slider:" [Confidence / Focus / Readiness]
+  - Step 4 (2 min): "Your mission for tomorrow: do this exact practice again.
+    Same time, same spot." → Ask for preferred reminder time, save to profile.
+  On completion: Award 50 XP, show "PRACTICE COMPLETE 🔥 Streak: 1 day"
+
+Lesson 0.3 — "The Certainty Rating System" (~5 min):
+  Explain the 1-10 Certainty Rating as their "system health monitor."
+  Show a simple chart of what each number means in baseball terms:
+  1-3: "System needs a reboot" | 4-6: "System is running, but lagging" |
+  7-8: "System is optimized" | 9-10: "Elite mode — locked in"
+  Action: Log today's overall Certainty Rating.
+
+[5] XP + STREAK DATABASE TABLES
+Create these Supabase tables if they don't exist:
+
+TABLE: user_progress
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  lesson_id TEXT
+  completed_at TIMESTAMP
+  xp_earned INTEGER
+  created_at TIMESTAMP DEFAULT now()
+
+TABLE: daily_practices
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  practice_date DATE
+  certainty_before INTEGER (1-10)
+  certainty_after INTEGER (1-10)
+  notes TEXT
+  created_at TIMESTAMP DEFAULT now()
+
+TABLE: user_xp_events
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  event_type TEXT (e.g., 'lesson_complete', 'daily_practice', 'streak_milestone')
+  xp_amount INTEGER
+  description TEXT
+  created_at TIMESTAMP DEFAULT now()
+
+After each XP award, update users.current_xp and recalculate users.current_level
+based on the level thresholds in replit.md.
+
+CONSTRAINTS:
+- Do NOT build the full gamification badge system yet (that is Phase 2)
+- Do NOT build community features yet (Phase 3)
+- Do NOT implement payment/pricing yet
+- Do NOT rebuild all 42 lessons — only build the Day 0 Fast Track structure
+
+STOP AFTER: User can complete the full Day 1 flow (quiz → signup → dashboard → Day 0
+lessons → log practice → see XP and streak). Test this complete flow before stopping.
+Tell me when Phase 1 is complete and working.

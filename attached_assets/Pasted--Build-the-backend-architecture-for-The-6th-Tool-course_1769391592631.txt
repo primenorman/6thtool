@@ -1,0 +1,181 @@
+
+Build the backend architecture for The 6th Tool course platform.
+
+TECH STACK:
+- Framework: Next.js 14 (App Router)
+- Database: PostgreSQL with Prisma ORM
+- Authentication: NextAuth.js v5
+- File Storage: AWS S3 or Vercel Blob (for videos, PDFs, images)
+- Payment: Stripe for one-time purchases and subscriptions
+
+DATABASE SCHEMA REQUIREMENTS:
+
+Users Table:
+- id (UUID)
+- email
+- name
+- role (student, coach, admin)
+- stripeCustomerId
+- subscriptionStatus
+- createdAt, updatedAt
+
+Enrollments Table:
+- id
+- userId (FK)
+- courseId (FK - allows multiple courses in future)
+- enrolledAt
+- completedAt (nullable)
+- currentModuleId (FK)
+
+Modules Table:
+- id
+- title
+- description
+- orderIndex (1-7)
+- isPublished
+
+Lessons Table:
+- id
+- moduleId (FK)
+- title
+- type (video, exercise, reading)
+- videoUrl (nullable)
+- contentBody (rich text/markdown)
+- orderIndex
+- estimatedMinutes
+
+UserProgress Table:
+- id
+- userId (FK)
+- lessonId (FK)
+- completedAt (nullable)
+- timeSpent (minutes)
+- lastAccessedAt
+
+Exercises Table:
+- id
+- lessonId (FK)
+- type (metastory, IAP, RNBR, SA_objective, EPSI, time_trip, success_failure)
+- promptText
+- requiredFields (JSON - defines structure)
+
+ExerciseSubmissions Table:
+- id
+- userId (FK)
+- exerciseId (FK)
+- submissionData (JSON - flexible structure)
+- completedAt
+- updatedAt
+
+DailyPractice Table:
+- id
+- userId (FK)
+- practiceDate (date)
+- gutGoal (text)
+- certaintyRating (1-10)
+- concentrationGridScore (number)
+- successLog (JSON array)
+- failureLog (JSON array)
+- completedAt
+- timeSpent (minutes)
+
+CertaintyRatings Table (separate for trend tracking):
+- id
+- userId (FK)
+- date
+- rating (1-10)
+
+SavedTargets Table (for user's EPSI, Metastories, etc.):
+- id
+- userId (FK)
+- type (metastory, EPSI, SA_objective, subsidiary_target)
+- title
+- content (text - rich content)
+- isActive (boolean)
+- createdAt, updatedAt
+
+API ENDPOINTS NEEDED:
+
+Authentication:
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/logout
+- GET /api/auth/session
+
+Course Content:
+- GET /api/modules (list all modules with locked status for user)
+- GET /api/modules/[id]/lessons
+- GET /api/lessons/[id] (with user progress)
+- POST /api/lessons/[id]/complete
+- GET /api/exercises/[id]
+- POST /api/exercises/[id]/submit
+
+Daily Practice:
+- POST /api/daily-practice (save today's practice)
+- GET /api/daily-practice (get today's or historical)
+- GET /api/daily-practice/streak
+- GET /api/certainty-ratings (for graphing)
+- POST /api/certainty-ratings
+
+User Progress:
+- GET /api/progress/dashboard (aggregate stats)
+- GET /api/progress/modules (completion status)
+- POST /api/progress/update
+
+Saved Targets:
+- GET /api/targets (user's saved Metastories, EPSI, etc.)
+- POST /api/targets (create new)
+- PUT /api/targets/[id] (update)
+- DELETE /api/targets/[id]
+
+Stripe Payments:
+- POST /api/stripe/create-checkout
+- POST /api/stripe/webhook (handle successful payments)
+- GET /api/stripe/portal (customer portal for subscription management)
+
+BUSINESS LOGIC REQUIREMENTS:
+
+1. Module Unlocking Logic:
+- Module 1 always available
+- Module N unlocked when user completes all lessons in Module N-1
+- Check on page load and after lesson completion
+
+2. Progress Calculation:
+- Module completion percentage
+- Overall course completion
+- Time invested tracking
+
+3. Streak Calculation:
+- Consecutive days with completed Daily Practice
+- Reset to 0 if a day is skipped
+- Grace period (if user practices by midnight next day, maintain streak)
+
+4. Certainty Rating Trends:
+- Calculate 7-day, 30-day averages
+- Flag if rating drops below 7 (blocker indicator)
+
+5. Exercise Validation:
+- Different validation rules per exercise type
+- SA Objective: must meet 11 criteria checklist
+- EPSI: minimum word count (300-500 words)
+- Daily Success/Failure: requires at least 1 entry each
+
+6. Data Privacy:
+- Journal entries are private (only accessible by user and admin)
+- No sharing features for personal exercises
+- Encrypted at rest
+
+Generate:
+1. Complete Prisma schema
+2. Seed data for all 7 modules with sample lessons
+3. API route handlers for core user journey (signup → enroll → complete lesson → daily practice)
+4. Middleware for authentication and module access control
+5. Helper functions for progress calculations
+6. Webhook handler for Stripe payments
+
+Follow Next.js 14 best practices:
+- Server actions for mutations where appropriate
+- Use app router file structure
+- Implement proper error handling
+- Add TypeScript types for all data structures
+

@@ -1,0 +1,154 @@
+Create a comprehensive template library accessible throughout the platform wherever users 
+need to create structured content (Metastories, RNBR worksheets, SA Objectives, EPSI).
+
+ARCHITECTURE:
+
+Templates should be:
+1. Embedded in lesson pages where relevant (contextual access)
+2. Available in dedicated /templates library (reference access)
+3. Downloadable as PDFs for offline work
+4. Interactive (fill-in-the-blank web forms that generate formatted output)
+
+Database Schema:
+```sql
+CREATE TABLE templates (
+  id UUID PRIMARY KEY,
+  template_type VARCHAR(50), -- 'metastory', 'rnbr', 'sa_objective', 'epsi', 'brain_mapping', etc.
+  name VARCHAR(200),
+  description TEXT,
+  module_id UUID REFERENCES modules(id), -- Which module this template supports
+  
+  template_structure JSONB, -- Defines fields, prompts, validation rules
+  instructions TEXT,
+  example_completed TEXT, -- Example of well-completed template
+  
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP,
+  version INTEGER DEFAULT 1
+);
+
+CREATE TABLE user_template_submissions (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  template_id UUID REFERENCES templates(id),
+  
+  submission_data JSONB, -- Stores all filled-in fields
+  submitted_at TIMESTAMP,
+  last_updated TIMESTAMP,
+  
+  is_verified BOOLEAN DEFAULT FALSE, -- For competency gates
+  verified_by UUID REFERENCES users(id), -- Admin/coach who verified
+  verified_at TIMESTAMP,
+  verification_notes TEXT,
+  
+  needs_revision BOOLEAN DEFAULT FALSE,
+  revision_guidance TEXT
+);
+```
+
+TEMPLATE IMPLEMENTATIONS:
+
+1. Metastory Construction Template
+
+Create interactive form with fill-in-the-blank structure as shown in the enhancement doc.
+
+Fields to implement:
+- Location/situation (text input, encourages specificity)
+- Physical sensations (textarea with prompt)
+- Visual details (textarea with multi-sensory prompts)
+- Kinesthetic feelings (body sensation prompts)
+- Auditory elements (what you hear)
+- Emotional response (emotion + body location)
+- Cognitive insight (what you think/realize)
+- Identity statement (who you are in this moment)
+- Insurance statement (auto-appended)
+
+Each field should have:
+- Character minimum to prevent superficial responses
+- Inline guidance (placeholder text showing example)
+- Real-time validation (flags generic/abstract language)
+- Sensory richness check (flags missing sensory dimensions)
+
+Output formatting:
+- Generates flowing present-tense paragraph from inputs
+- Shows side-by-side: Template form | Generated narrative
+- Export as formatted PDF
+- Save to user's account for daily affirmation use
+
+2. Brain Mapping Worksheet Template
+
+Interactive diagnostic form:
+- Date/situation selectors
+- Radio buttons for brain system identification with detailed criteria
+- Physical signature location on body diagram (interactive)
+- Pattern recognition prompts
+- Intervention selection (links to relevant modules)
+- Voice memo upload for explanation
+
+Generates completed worksheet as PDF with all responses formatted professionally.
+
+3. RNBR Worksheet Template
+
+Five-step guided process matching the enhancement doc structure:
+- BBF identification with intensity sliders (1-10 scales with clear visual feedback)
+- Time Machine memory recall with age/location/feeling prompts
+- Reframing with before/after comparison
+- Amplification repetition counter
+- Adult-to-child integration narrative
+- Verification: BBF intensity before/after, certainty before/after with automatic delta calculation
+
+Critical feature: Progress auto-save every 30 seconds (RNBR work is emotionally intense - 
+cannot lose progress due to browser crash or interruption)
+
+4. SA Objective Construction Template  
+
+Step-by-step builder with criterion validation:
+- Fill-in-the-blank objective statement
+- Real-time check against all 11 criteria with color-coded validation
+- Subsidiary target builder if complexity requires it
+- 120% buffer calculator and UPL identification
+- Export formatted objective as both PDF and daily affirmation text
+
+Visual feedback: Green checkmarks for met criteria, yellow warnings for potential issues, 
+red flags for violations requiring fix before proceeding.
+
+5. EPSI Creation Template
+
+Multi-stage wizard walking through all experiential layers:
+- Moment identification (when/where achievement confirmed)
+- Physical/kinesthetic layer (structured body sensation prompts)
+- Visual layer (extreme specificity prompts)
+- Auditory layer (sound environment)
+- Emotional layer (10/10 intensity requirement)
+- Cognitive/meaning layer (realization prompts)
+- Key elements integration (weaving in all previously defined elements)
+- Complete narrative synthesis (300-500 word flowing description)
+
+Intensity check: After narrative completion, user records themselves reading it aloud 
+(audio recording). System prompts: "Rate the emotional intensity of that reading (1-10). 
+If below 10, what needs amplification?"
+
+6. Daily Success/Failure Log Template
+
+This is integrated into the daily practice routine (Phase 5) but should also be accessible 
+standalone for athletes who want to log immediately after practice/games.
+
+Structured prompts prevent both the blank page problem and superficial responses:
+- Success: "What happened?" → "Amplify to 10/10" → "IAP anchor confirmed"
+- Failure: "Brief ID" → "IMMEDIATELY: Perfect response would have been..." → "IAP anchor"
+
+Generate:
+1. Template library page with all templates organized by module
+2. Interactive form builders for each template type
+3. Auto-save functionality with recovery from incomplete sessions
+4. PDF generation for all completed templates
+5. Template submission system for mastery verification (connects to competency gates)
+6. Template revision workflow when verification requires changes
+7. Example library showing completed templates from past successful users (anonymized)
+
+UI/UX PRINCIPLES:
+- Never overwhelming - reveal fields progressively, not all at once
+- Celebrate completion - satisfying animation when template submitted
+- Clear progress indicators - "3 of 8 fields completed"
+- Inline examples - show what good responses look like
+- Validation is helpful, not punitive - explain WHY a field needs more detail

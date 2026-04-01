@@ -1,0 +1,105 @@
+# The 6th Tool — Project Specification
+## Persistent Context for Replit Agent
+
+### WHAT THIS APP IS
+The 6th Tool is a mental performance training platform for baseball players aged 14–25.
+It teaches athletes to treat their minds as programmable "bio-computers" using the
+Cybernetic Transposition methodology. The platform currently has 42 lessons, 5 interactive
+templates, a Neural Lab (pitch recognition games), and the Springer Protocol (bonus module
+mapped to Steve Springer's 14-year pro career system). It has 0% completion rate and needs
+a full UX and engagement overhaul.
+
+### THE CORE PROBLEM WE ARE SOLVING
+The course content is brilliant but packaged like a graduate seminar. Athletes (14–25) need:
+- Video-first delivery (not text walls)
+- Immediate value on Day 1 (currently requires 33.5 hours before first practice)
+- Gamification and streak loops (like Duolingo, but for baseball)
+- Mobile-ready PWA with offline capability
+
+### TECH STACK — ALWAYS USE THESE, NEVER DEVIATE
+- **Frontend:** React 18 + TypeScript + Tailwind CSS
+- **Backend:** Node.js + Express (or Next.js API routes if starting fresh)
+- **Database:** PostgreSQL via Supabase (use Supabase client SDK)
+- **Auth:** Supabase Auth (email/password + magic link)
+- **Offline/PWA:** Workbox service worker + IndexedDB via Dexie.js
+- **State Management:** TanStack Query (server state) + Zustand (UI state)
+- **Package Manager:** npm
+
+### CODING STANDARDS — ALWAYS FOLLOW
+- TypeScript strict mode. No `any` types.
+- All components are functional React with hooks. No class components.
+- Use Tailwind utility classes only. No custom CSS files unless absolutely necessary.
+- All database queries use parameterized statements. Never string-interpolate SQL.
+- Every user-facing string uses baseball/coaching language, not clinical/academic language.
+  - ✅ "mental workout" | ❌ "cognitive training session"
+  - ✅ "debug your performance" | ❌ "identify psychological blockers"
+  - ✅ "install your system" | ❌ "complete onboarding"
+- Error states must always show a user-friendly message AND log the technical error.
+
+### THREE-TIER BOUNDARY RULES
+✅ ALWAYS DO (without asking):
+- Follow the tech stack above
+- Write TypeScript types for all data structures
+- Add loading and error states to every async component
+- Use Supabase Row Level Security (RLS) on all tables
+- Test after building each feature before moving to the next
+
+⚠️ ASK ME FIRST BEFORE:
+- Adding any new npm package not already in package.json
+- Changing the database schema (adding/removing columns or tables)
+- Modifying the gamification XP values or level thresholds
+- Implementing any payment/pricing features
+
+🚫 NEVER DO:
+- Commit or expose API keys or secrets in any file
+- Delete existing user data or course content
+- Use localStorage or sessionStorage (use IndexedDB via Dexie.js instead)
+- Add features not specified in the current phase prompt
+- Auto-deploy to production without explicit instruction
+
+### GAMIFICATION DATA MODEL (REFERENCE — DO NOT MODIFY WITHOUT ASKING)
+These are the canonical XP values for the gamification engine:
+
+LEVELS:
+  Rookie:    0–500 XP
+  Prospect:  501–1,500 XP
+  Draft Pick: 1,501–3,500 XP
+  Pro:       3,501–7,000 XP
+  All-Star:  7,001–15,000 XP
+  Hall of Fame: 15,001+ XP
+
+XP AWARDS:
+  Complete Quick Start:     100 XP
+  First daily practice:     50 XP
+  Daily practice (ongoing): 25 XP/day
+  Complete Module 1:        200 XP
+  Create first Metastory:   150 XP
+  7-day streak:             100 XP
+  Complete through Module 4: 400 XP
+  First RNBR session:       200 XP
+  21-day streak:            200 XP
+  Complete full course:     500 XP
+  30-day perfect streak:    300 XP
+  Complete all templates:   400 XP
+  60-day streak:            500 XP
+  90-day streak:            700 XP
+
+STREAK RULES:
+  - Streak increments when user logs a daily practice
+  - If no practice logged by midnight (user's local time), streak resets to 0
+  - Show "X hours until streak breaks" countdown when past 6 PM local time
+  - Streak Freeze feature: purchasable, saves streak for 1 missed day
+
+### CURRENT DEVELOPMENT PHASE
+[AGENT: Check which phase is active in the current chat prompt and update this line accordingly]
+Phase: [TO BE SET PER SESSION]
+
+### WHAT ALREADY EXISTS (DO NOT REBUILD THESE)
+- Basic Replit auth (to be replaced with Supabase Auth in Phase 1)
+- 42 text-based lessons across 7 modules
+- 5 interactive templates (worksheet-style)
+- Neural Lab (basic pitch recognition game with 1-user leaderboard)
+- Springer Protocol content (bonus module, currently locked behind full course completion)
+- Certainty Rating tracker (basic, underutilized)
+- Streak counter (exists but not prominently displayed)
+- 3 audio files: IAP Discovery, Mortality Meditation, 4-7-8 Breathing

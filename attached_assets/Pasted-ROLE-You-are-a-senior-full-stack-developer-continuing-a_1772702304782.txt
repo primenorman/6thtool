@@ -1,0 +1,194 @@
+ROLE: You are a senior full-stack developer continuing a phased EdTech platform rebuild.
+Read replit.md first. Phases 1 and 2 are complete — auth, onboarding, dashboard,
+gamification (XP/levels/badges/leaderboard), 6-week course structure, and the 50/30/20
+lesson layout all exist and work.
+
+PHASE 3 GOAL: Make the platform mobile-ready and offline-capable (PWA), add push
+notification infrastructure, wire up the email queue from Phase 2, and build a basic
+community forum. By the end of this phase, a player can use the app from their phone
+in the dugout without internet, and the platform actively pulls them back if they
+haven't practiced.
+
+MUST-HAVES FOR PHASE 3:
+
+[1] PROGRESSIVE WEB APP (PWA) CONVERSION
+Convert the existing React app into a PWA using Workbox.
+
+WEB APP MANIFEST (public/manifest.json):
+{
+  "name": "The 6th Tool",
+  "short_name": "6th Tool",
+  "description": "Mental performance training for baseball players",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#22c55e",
+  "icons": [
+    {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
+
+Create placeholder icons (192x192 and 512x512 green squares with "6T" text) until
+real brand assets are provided.
+
+SERVICE WORKER — CACHING STRATEGY (register via Workbox):
+  App shell (HTML/CSS/JS bundles): Precache + stale-while-revalidate
+  Lesson content pages: Network-first with cache fallback (show cached when offline)
+  Images: Cache-first (they rarely change)
+  Audio files (IAP Discovery, Mortality Meditation, 4-7-8 Breathing): Cache-first
+  Daily Practice page: Precache (must work offline at all times)
+  API calls to Supabase: Network-first, fallback to IndexedDB cached data
+
+OFFLINE-FIRST DAILY PRACTICE:
+The 15-minute daily practice flow (breath timer + certainty sliders) MUST work fully offline.
+Use Dexie.js (IndexedDB) to:
+  - Store the practice form data locally when user submits offline
+  - Show "[Saved offline — will sync when connected]" message
+  - Sync to Supabase automatically when connection is restored (use Background Sync API)
+  - Queue XP awards and streak updates to sync when online
+
+INSTALL PROMPT:
+  - On mobile, after user completes their FIRST practice, show a banner:
+    "Add The 6th Tool to your home screen for the best experience"
+  - On iOS: show custom instructions overlay with screenshots of
+    Safari share → Add to Home Screen steps
+  - On Android: trigger the native beforeinstallprompt event if available
+  - Store whether user has dismissed this (in IndexedDB) so it doesn't repeat
+
+[2] PUSH NOTIFICATION SYSTEM
+Implement Web Push notifications using the browser Push API + Workbox.
+
+SETUP:
+  - Generate VAPID key pair (store private key as environment secret, public key in code)
+  - Create endpoint in backend: POST /api/push/subscribe (saves subscription to DB)
+
+TABLE: push_subscriptions
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  subscription JSONB (the full PushSubscription object)
+  created_at TIMESTAMP DEFAULT now()
+
+PERMISSION REQUEST TIMING (critical — wrong timing kills opt-in rates):
+  - NEVER ask for notification permission on page load or signup
+  - Ask ONLY after user completes their FIRST daily practice
+  - Show a contextual prompt BEFORE the browser dialog:
+    "Want a daily reminder to protect your streak? [Yes, remind me] [Not now]"
+  - If they click "Yes", then trigger browser permission dialog
+  - If browser grants permission, save subscription to push_subscriptions table
+
+NOTIFICATION TRIGGERS (backend sends these):
+  - Daily practice reminder: "🔥 Don't break your [X]-day streak. 15 minutes. That's all."
+    Send at: user's preferred practice time (stored in profile from Phase 1)
+    If no preferred time: send at 6 PM user local time
+  - Streak at risk: "⚠️ Your [X]-day streak breaks in 2 hours. Quick practice now?"
+    Send at: 10 PM local time if no practice logged that day
+  - Badge earned: "[emoji] You just earned [Badge Name]! See your progress →"
+    Send immediately when badge is awarded
+  - New content unlocked: "🆕 [Content Name] just unlocked. You've earned it. →"
+    Send when a level-gated feature becomes available
+
+BUILD the push sending function as a Supabase Edge Function or backend route:
+  POST /api/push/send
+  Body: { userId, title, body, url }
+  Looks up user's push_subscriptions, sends via web-push library
+  Log all sends to a push_log table (user_id, notification_type, sent_at, success BOOLEAN)
+
+WIRE UP EMAIL QUEUE FROM PHASE 2:
+Connect the email_queue table to an actual email sender.
+Use Resend (https://resend.com) — simplest API for transactional email.
+Create a Supabase Edge Function that runs every hour:
+  - Query email_queue WHERE sent_at IS NULL AND scheduled_for <= now()
+  - For each row, send the appropriate email via Resend API
+  - Mark sent_at = now() after successful send
+
+Email templates to build (plain HTML, baseball-tone):
+
+'day_1_checkin' subject: "Did you get your first mental rep in? ⚾"
+Body: "Hey [name], Yesterday you installed The 6th Tool. Did you complete your first
+15-minute practice? Your streak starts the moment you log that first rep.
+[→ LOG MY PRACTICE]"
+
+'day_3_progress' subject: "3 reps in — your neural pathways are forming 🧠"
+Body: "[name], You've practiced [X] times. Elite hitters don't just have talent —
+they have systems. You're building one. [→ CONTINUE TRAINING]"
+
+'day_7_badge' subject: "🔥 7-Day Warrior Badge Unlocked"
+Body: "[name], Seven days. Seven mental reps. You just earned the 7-Day Warrior badge.
+Most players never make it this far. You're not most players. [→ SEE YOUR BADGE]"
+
+'streak_at_risk' subject: "Your [X]-day streak is on the line tonight ⚠️"
+Body: "[name], You've built a [X]-day streak. Don't let it break tonight.
+15 minutes. That's it. [→ START PRACTICE NOW]"
+
+'day_14_halfway' subject: "Halfway through your foundation — here's your progress"
+Body: "[name], 2 weeks in. Here's what your bio-computer has installed so far:
+[list their completed modules]. Your next unlock: [next module name]. [→ KEEP GOING]"
+
+'day_21_habit' subject: "21 days. It's a habit now. 🔒"
+Body: "Science says 21 days creates a habit. [name], you just crossed that line.
+Mental training isn't something you're trying anymore — it's something you do. [→ DASHBOARD]"
+
+'day_30_milestone' subject: "30 days of mental reps. Here's your data. 📊"
+Body: "One month. [X] practices. Your Certainty Rating started at [baseline] and
+is now averaging [current_avg]. That's your bio-computer improving. [→ SEE YOUR CHART]"
+
+NOTE: Use Resend's free tier (100 emails/day) for now. Add API key as environment secret.
+
+[3] BASIC COMMUNITY FORUM
+Build a minimal but functional discussion forum. Keep it simple — no third-party forum
+software. Build it in Supabase + React.
+
+TABLE: forum_posts
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  module_context TEXT (e.g., 'week_2', 'general', 'neural_lab')
+  title TEXT
+  content TEXT
+  created_at TIMESTAMP DEFAULT now()
+  updated_at TIMESTAMP
+
+TABLE: forum_replies
+  id UUID PRIMARY KEY
+  post_id UUID REFERENCES forum_posts(id)
+  user_id UUID REFERENCES users(id)
+  content TEXT
+  created_at TIMESTAMP DEFAULT now()
+
+TABLE: forum_reactions
+  id UUID PRIMARY KEY
+  post_id UUID (nullable) REFERENCES forum_posts(id)
+  reply_id UUID (nullable) REFERENCES forum_replies(id)
+  user_id UUID REFERENCES users(id)
+  type TEXT ('fire', 'got_it', 'question')
+  — NOTE: only one reaction per user per post/reply
+
+FORUM UI:
+  - Located at /community route
+  - Tabs: [All Posts] [Week 1] [Week 2] [Week 3] [Week 4] [Week 5] [Week 6] [Neural Lab]
+  - Each tab filters by module_context
+  - Post list: shows title, author (display_name + level badge), reply count, time
+  - Clicking a post opens full post + replies
+  - "New Post" button (only visible to logged-in users)
+  - Reaction buttons: 🔥 (fire) | ✅ (got it) | ❓ (question)
+  - Each module's lesson page should have a link: "Discuss this in the community →"
+    that pre-filters to that module's forum tab
+
+WEEKLY WIN THREAD — AUTOMATED:
+  Every Monday at 12:00 PM UTC, automatically create a forum post via backend:
+  Title: "🏆 Weekly Wins — Week of [date]"
+  Content: "What mental rep are you most proud of from this week? Drop your win below.
+  Doesn't matter how small — every rep counts."
+  module_context: 'general'
+  user_id: a system/bot user (create a system_user entry in users table)
+
+CONSTRAINTS:
+- Do NOT add video upload to the community (Phase 4)
+- Do NOT add real-time chat (keep as forum/thread style)
+- Do NOT build payment system (Phase 4)
+
+STOP AFTER: App works offline for daily practice (test by turning off internet and logging
+a practice — it should sync when reconnected), push notification opt-in works end-to-end,
+email queue sends test emails via Resend, and community forum lets users post and reply.
+Tell me when Phase 3 is complete and working.

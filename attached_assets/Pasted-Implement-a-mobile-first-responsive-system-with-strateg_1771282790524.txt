@@ -1,0 +1,87 @@
+Implement a mobile-first responsive system with strategic breakpoints that recognize 
+distinct usage contexts rather than arbitrary screen widths.
+
+BREAKPOINT PHILOSOPHY:
+
+The conventional approach treats breakpoints as screen size categories: mobile (< 768px), 
+tablet (768-1024px), desktop (> 1024px). This misses the behavioral reality. What matters 
+isn't pixel dimensions but usage context and interaction modality.
+
+Your breakpoint system should distinguish:
+
+**Context 1: One-Handed Mobile** (320px - 428px)
+- User likely standing, commuting, or in short break between activities
+- One-handed operation required (thumb-driven navigation)
+- Sessions frequently interrupted
+- Network may be cellular (slower, metered)
+- Primary actions: Daily practice routine, quick template updates, streak checking
+
+Design priorities:
+- Bottom navigation for primary features (thumb zone)
+- Single-column layouts exclusively
+- Large touch targets (minimum 44x44px, ideal 48x48px)
+- Minimal text input (use voice-to-text, select from options)
+- Aggressive progressive disclosure (show only what's needed now)
+
+**Context 2: Two-Handed Mobile / Small Tablet** (429px - 834px)
+- User likely seated, more focused session
+- Can handle more complexity per screen
+- May be filling templates, reviewing detailed content
+- Network often WiFi (faster, unmetered)
+
+Design priorities:
+- Still bottom navigation but can include more items
+- Strategic two-column layouts for comparison tasks
+- Larger forms acceptable (but still chunk into steps)
+- Rich media (videos, detailed diagrams) appropriate
+
+**Context 3: Tablet / Laptop** (835px - 1279px)
+- User in sustained work session (lesson viewing, deep template work)
+- Keyboard available for extended writing
+- Stable environment (desk, couch)
+- Reliable network
+
+Design priorities:
+- Side navigation becomes viable
+- Multi-column layouts for parallel information
+- Detailed dashboards with multiple metrics visible simultaneously
+- Hover states and tooltips appropriate
+
+**Context 4: Desktop** (1280px+)
+- Admin/coach review interfaces
+- Advanced analytics dashboards
+- Side-by-side content comparison
+
+Tailwind CSS Implementation:
+```css
+/* Mobile-first base styles (320px+) - Default, no prefix needed */
+.practice-card {
+  @apply w-full p-4 space-y-4;
+}
+
+/* Two-handed mobile (429px+) */
+@media (min-width: 429px) {
+  .practice-card {
+    @apply max-w-md mx-auto p-6;
+  }
+}
+
+/* Tablet (835px+) */
+@media (min-width: 835px) {
+  .practice-card {
+    @apply max-w-2xl;
+  }
+}
+
+/* Desktop (1280px+) */
+@media (min-width: 1280px) {
+  .practice-card {
+    @apply max-w-4xl;
+  }
+}
+```
+
+CRITICAL PRINCIPLE: Never use `display: none` to hide content on mobile that's visible 
+on desktop. This still downloads the hidden content, wasting bandwidth and slowing load 
+times on cellular networks. Instead, conditionally render different components based on 
+viewport size using client-side JavaScript or server-side rendering with device detection.

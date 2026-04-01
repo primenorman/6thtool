@@ -1,0 +1,133 @@
+Implement the 15-minute daily routine activation system with the following components:
+
+FEATURE: Daily Practice Dashboard
+
+Create a dedicated /daily-practice route that becomes the primary user destination each day.
+
+UI Requirements:
+- Prominent "Current Streak" display (days, with visual calendar showing completion pattern)
+- "Today's Practice" status: Not Started / In Progress / Complete
+- Five sequential phases that must be completed in order:
+  1. Gut Goal (1 min) - Text input, voice-to-text option
+  2. Breathing Guide (2 min) - Animated timer with 4-7-8 breathing visualization
+  3. Concentration Grid (3 min) - Interactive 10x10 grid, auto-scored
+  4. Affirmation/EPSI (4 min) - Display user's saved EPSI with timer
+  5. Success/Failure Log (5 min) - Structured prompts for both
+
+Technical Implementation:
+
+Database Schema Additions:
+```sql
+CREATE TABLE daily_practice_sessions (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  practice_date DATE NOT NULL,
+  gut_goal TEXT,
+  gut_goal_recorded_at TIMESTAMP,
+  
+  breathing_completed BOOLEAN DEFAULT FALSE,
+  breathing_completed_at TIMESTAMP,
+  
+  concentration_grid_score INTEGER,
+  concentration_grid_time_seconds INTEGER,
+  concentration_grid_completed_at TIMESTAMP,
+  
+  affirmation_read BOOLEAN DEFAULT FALSE,
+  affirmation_time_seconds INTEGER,
+  affirmation_completed_at TIMESTAMP,
+  
+  success_log JSONB[], -- Array of success entries
+  failure_log JSONB[], -- Array of failure entries  
+  success_failure_completed_at TIMESTAMP,
+  
+  session_completed_at TIMESTAMP,
+  total_time_seconds INTEGER,
+  
+  UNIQUE(user_id, practice_date)
+);
+
+CREATE TABLE practice_streaks (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES users(id),
+  streak_start_date DATE,
+  streak_end_date DATE,
+  streak_days INTEGER,
+  is_current BOOLEAN DEFAULT TRUE,
+  broken_at TIMESTAMP
+);
+
+CREATE TABLE concentration_grids (
+  id UUID PRIMARY KEY,
+  grid_data JSONB, -- 10x10 array of numbers 00-99 randomly positioned
+  created_at TIMESTAMP,
+  difficulty_level INTEGER DEFAULT 1
+);
+```
+
+Behavioral Logic:
+
+Streak Calculation Rules:
+- A day counts toward streak if ALL five phases are completed by 11:59 PM user's timezone
+- Missing a single day breaks the streak
+- Grace period: If user completes practice by 2 AM next day, counts for previous day (flexible for late-night athletes)
+- When streak breaks, save as historical streak and start new current streak at 0
+
+Gut Goal Phase:
+- Text input field with character limit (100 words max)
+- Optional: Browser speech-to-text API integration for voice input
+- Auto-save every 10 seconds (never lose user input)
+- Cannot advance to Phase 2 until gut goal is recorded
+- Prompt: "What's the single most important thing for you to focus on today in your hitting?"
+
+Breathing Guide Phase:
+- Visual: Expanding/contracting circle animation
+- Text displays current instruction: "Breathe in (4)" → "Hold (7)" → "Exhale (8)"
+- Four complete cycles required
+- Timer: 90 seconds total
+- Audio cue option (gentle chime at transitions) - optional enhancement
+- Auto-advances when complete
+
+Concentration Grid Phase:
+- Generate new random 10x10 grid daily for each user
+- Grid numbers: 00-99, each appears exactly once
+- User finds numbers in sequential order (00, 01, 02...)
+- Click to select number - validates correct sequence
+- Timer: 3 minutes
+- Score = highest number reached when timer expires
+- Store: score, time, date for trend tracking
+- Display historical best score and 7-day average
+- Cannot advance until 3 minutes elapsed OR user explicitly skips (with confirmation: "Skip will not break streak but won't record score")
+
+Affirmation/EPSI Phase:
+- Display user's saved EPSI text (from Module 6 work)
+- Countdown timer: 4 minutes
+- Encouragement prompt: "Read your EPSI slowly, then close your eyes and experience it vividly"
+- Optional: Audio recording playback if user recorded themselves reading it
+- Mark complete when timer finishes or user marks "I've completed my visualization"
+
+Success/Failure Log Phase:
+- Structured form with specific prompts
+- Success entries (minimum 1, maximum 4):
+  - Brief description (what happened)
+  - Amplified version prompt: "Describe this as a perfect 10/10 experience"
+  - Checkbox: "I anchored this in my IAP"
+- Failure entries (minimum 1, maximum 4):
+  - Brief description (10 words max - prevent rumination)
+  - Immediate prompt: "What would the perfect 10/10 response have been?"
+  - Detailed corrected version
+  - Checkbox: "I anchored the correction in my IAP"
+- Both can be "None today" but must actively select that option
+
+Generate:
+1. Daily practice page component with all five phases
+2. Streak calculation and display system
+3. Calendar heatmap showing practice completion (GitHub-style contribution graph)
+4. Concentration grid generator and interactive component
+5. Progress persistence (can complete phases throughout the day, resume where left off)
+6. Completion celebration animation when full routine finishes
+7. Email/notification system for streak milestones (7, 30, 90, 365 days)
+
+CRITICAL BEHAVIORAL DESIGN PRINCIPLE:
+The system should make completing the routine feel like the path of least resistance. 
+Clear progress indicators, satisfying completion states, visible streak visualization 
+all create momentum. Never shame for missed days - just reset and encourage restart.

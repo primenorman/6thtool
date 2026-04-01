@@ -1,0 +1,65 @@
+I want to build a comprehensive online course platform called "The 6th Tool: Cybernetic Baseball Performance Training" - a 7-module mental performance system for baseball players.
+
+Before we write any code, help me create a detailed project specification.
+
+COURSE STRUCTURE:
+The platform delivers a complete mental performance training system with:
+- 7 sequential modules (students must complete in order)
+- Each module contains: video lessons, interactive exercises, downloadable worksheets, progress tracking
+- Multiple experiential exercises requiring user input and journaling
+- A daily 15-minute practice routine with tracking
+- Progress metrics including daily "certainty ratings" (1-10 scale)
+
+TARGET USERS:
+- Baseball players (high school through professional)
+- Coaches wanting to teach the system
+- Parents supporting player development
+- Users need simple, focused interface - this is a performance tool, not social media
+
+CORE FEATURES NEEDED:
+1. User authentication and profiles
+2. Module-by-module course progression (locked until previous completed)
+3. Video lesson hosting and playback
+4. Interactive exercises with text input fields (journals, worksheets)
+5. Downloadable resources (PDFs, worksheets, concentration grids)
+6. Daily practice routine tracker with:
+   - Gut Goal logging
+   - Certainty rating (1-10 slider)
+   - Success/Failure journaling
+   - Streak tracking (consecutive days practiced)
+7. Progress dashboard showing:
+   - Modules completed
+   - Daily certainty trend graph
+   - Practice streak
+   - Completed exercises
+8. Payment processing (one-time purchase or subscription options)
+9. Admin panel for content management
+
+TECHNICAL CONSTRAINTS:
+- Mobile-responsive (many users will access on phones)
+- Fast loading (athletes use between practice sessions)
+- Clean, distraction-free design (performance tool aesthetic, not flashy)
+- Secure storage of user journal entries (personal/private content)
+
+UNIQUE COURSE METHODOLOGY CONTEXT:
+This isn't generic education - it's a systematic mental training protocol based on cybernetics. Key concepts students work with:
+- Metastories (imaginary perfect experiences created from edited memories)
+- Inner Anchor Point (IAP) - physical trigger in body for peak state activation
+- Blocker Body Feelings (BBFs) - physical sensations indicating unconscious resistance
+- RNBR (Root Normal Base Reframing) - technique for resolving performance blockers
+- EPSI (Endpoint Success Image) - holographic target for unconscious programming
+- SA Objectives (Super Achievement) - precisely formatted goals with 11 criteria
+
+The platform needs to support these specialized practices, not just deliver generic lessons.
+
+Please create a comprehensive spec document that includes:
+1. Detailed feature requirements organized by user type (student, coach, admin)
+2. Technical architecture recommendation (suggest tech stack)
+3. Database schema for storing course content, user progress, journal entries, practice logs
+4. API endpoints needed for key features
+5. Development phases broken into achievable milestones
+6. Security considerations for user data privacy
+7. Suggested deployment platform
+
+Ask me clarifying questions before generating the spec if anything is unclear about the course methodology or technical requirements.
+

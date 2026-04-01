@@ -1,0 +1,113 @@
+Now let's design the user interface for The 6th Tool course platform.
+
+DESIGN PHILOSOPHY:
+This is a *performance tool*, not entertainment. Think: athletic training app meets premium educational platform. Users are athletes training their minds the way they train their bodies - the aesthetic should reflect serious, systematic practice.
+
+Design inspiration:
+- Strava (clean, metric-focused, achievement-oriented)
+- Calm/Headspace (distraction-free, centered, purposeful)
+- Notion (organized, scannable, functional)
+- NOT like: Coursera, Udemy, or typical flashy course platforms
+
+CORE PAGES NEEDED:
+
+1. LANDING PAGE (Pre-Login)
+Components:
+- Hero section explaining "The 6th Tool" concept
+- Course overview (7 modules, what students achieve)
+- Pricing options
+- Video testimonial section
+- CTA to purchase/enroll
+
+Visual priorities:
+- Professional but athletic
+- Use baseball imagery sparingly (this transcends sport - it's mental engineering)
+- Emphasize transformation: "From blocked to elite performance"
+- Trust signals (results-based, systematic, proven)
+
+2. STUDENT DASHBOARD (Post-Login Home)
+Layout:
+- Top: Welcome back [Name], Current Module progress bar
+- Left sidebar: Module navigation (1-7, locked/unlocked states)
+- Center: Today's focus
+  - Daily Certainty Rating widget (slider 1-10 with trend graph below)
+  - Daily Practice Routine checklist
+  - Current module lesson/exercise
+- Right sidebar: Stats
+  - Practice streak (consecutive days)
+  - Modules completed
+  - Total journal entries
+  - Achievements/milestones
+
+Design priorities:
+- Extremely scannable at a glance
+- Clear visual hierarchy: what needs attention TODAY
+- Progress indicators create momentum
+- Calm color palette (not distracting)
+
+3. MODULE LESSON PAGE
+Structure:
+- Breadcrumb navigation (Module X > Section Y > Lesson Z)
+- Video player (clean, no distractions)
+- Lesson transcript (expandable)
+- Key concepts callout box
+- Progress: "Next Lesson" CTA at bottom
+- Sidebar: Module outline with completion checkmarks
+
+4. INTERACTIVE EXERCISE PAGE
+Examples of exercises we need UI for:
+- Text journaling (Metastory creation, EPSI description)
+- Guided meditation with timed segments (IAP discovery)
+- Multi-field forms (SA Objective builder with 11 criteria checklist)
+- Time Machine memory recall process
+- Success/Failure daily logging (structured prompts)
+
+Exercise UI requirements:
+- Auto-save (never lose user input)
+- Character/word counters where relevant
+- Clear instructions at top
+- Visual progress if multi-step
+- "Mark Complete" button
+- Ability to revisit/edit later
+
+5. DAILY PRACTICE ROUTINE PAGE
+This is critical - the 15-minute daily maintenance cycle:
+
+Five sequential sections (user completes in order):
+1. Gut Goal (text field, ~20 words)
+2. Breathing/Centering (timer: 2 minutes with visual breathing cue)
+3. Concentration Grid (interactive 10x10 grid, 3-minute timer, score tracking)
+4. Affirmation/EPSI (display user's saved EPSI, 4-minute timer for visualization)
+5. Success/Failure Log (structured journal with prompts)
+
+Design requirements:
+- Sequential flow (can't skip ahead)
+- Total time tracker (shows 15 minutes total)
+- Completion triggers streak increment
+- Historical log of past daily practices
+
+6. PROGRESS DASHBOARD
+Visualizations:
+- Certainty Rating over time (line graph, 30-day view)
+- Practice Streak calendar (highlight consecutive days)
+- Module completion (visual progress bar or checklist)
+- Journal entry count
+- Time invested (total practice minutes)
+
+7. DOWNLOADABLE RESOURCES PAGE
+Organized by module, with:
+- PDF worksheets (Brain Mapping, SA Objective templates, etc.)
+- Concentration Grids (printable)
+- Guided meditation audio files
+- Progress tracking sheets
+
+Create mockups/wireframes for these pages using shadcn/ui components with Tailwind CSS. 
+
+Prioritize:
+- Mobile-first responsive design
+- Fast load times (minimal animations)
+- Accessibility (WCAG AA)
+- Dark mode option (some athletes practice early morning/late evening)
+
+Show me designs for the Dashboard and Daily Practice Routine page first - these are the most complex.
+

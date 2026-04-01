@@ -1,0 +1,193 @@
+ROLE: You are a senior full-stack developer continuing a phased EdTech platform rebuild.
+Read replit.md first. Phase 1 is already complete — auth, onboarding quiz, new dashboard,
+Day 0 Fast Track, and basic XP/streak tracking all exist and are working.
+
+PHASE 2 GOAL: Build the full gamification engine and restructure the course into the
+6-week learning path. By the end of this phase, the platform should feel like Duolingo
+for baseball mental training — progress is visible, streaks feel precious, and badges
+create genuine celebration moments.
+
+MUST-HAVES FOR PHASE 2:
+
+[1] FULL GAMIFICATION ENGINE
+Expand the existing XP system into a complete gamification architecture.
+
+BADGE SYSTEM — Create these tables:
+
+TABLE: badges
+  id TEXT PRIMARY KEY (e.g., 'first_practice', 'seven_day_streak')
+  name TEXT (e.g., "System Activated", "Anchored & Activated")
+  description TEXT
+  icon_emoji TEXT
+  xp_required INTEGER (0 if triggered by event, not XP threshold)
+  event_trigger TEXT (the event_type string that awards this badge)
+  created_at TIMESTAMP
+
+TABLE: user_badges
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  badge_id TEXT REFERENCES badges(id)
+  earned_at TIMESTAMP DEFAULT now()
+
+Seed the badges table with these initial badges:
+  'system_activated' | "System Activated" | "Completed Day 1 Fast Track" | ⚡ | trigger: 'quickstart_complete'
+  'first_practice' | "First Rep" | "Logged your first daily practice" | 🎯 | trigger: 'first_daily_practice'
+  'neural_pathways' | "Neural Pathways Forming" | "3-day practice streak" | 🧠 | trigger: 'streak_3'
+  'first_tool' | "First Tool Installed" | "Created your first Metastory" | 🔧 | trigger: 'metastory_created'
+  'anchored' | "Anchored & Activated" | "Discovered your Inner Anchor Point" | ⚓ | trigger: 'iap_discovered'
+  'seven_day_warrior' | "7-Day Warrior" | "7-day practice streak" | 🔥 | trigger: 'streak_7'
+  'debugger' | "System Debugger" | "Completed your first RNBR session" | 🛠️ | trigger: 'rnbr_complete'
+  'prospect' | "Rising Prospect" | "Reached Prospect level" | ⬆️ | trigger: 'level_prospect'
+  'draft_pick' | "Draft Pick" | "Reached Draft Pick level" | 📋 | trigger: 'level_draft_pick'
+  'twenty_one_day' | "21-Day System" | "21-day practice streak" | 💎 | trigger: 'streak_21'
+  'pro_level' | "Gone Pro" | "Reached Pro level" | 🏆 | trigger: 'level_pro'
+  'thirty_day' | "Iron Will" | "30-day perfect streak" | 🦾 | trigger: 'streak_30'
+  'course_complete' | "Full System Install" | "Completed all 7 modules" | 🎖️ | trigger: 'course_complete'
+  'all_star' | "All-Star" | "Reached All-Star level" | ⭐ | trigger: 'level_all_star'
+  'sixty_day' | "Elite Operator" | "60-day practice streak" | 🚀 | trigger: 'streak_60'
+  'hall_of_fame' | "Hall of Fame" | "Reached Hall of Fame status" | 🏅 | trigger: 'level_hall_of_fame'
+  'ninety_day' | "Legend" | "90-day practice streak" | 👑 | trigger: 'streak_90'
+
+BADGE AWARD LOGIC:
+- Create a server-side function `checkAndAwardBadges(userId, eventType)` that runs
+  after every XP event
+- Check if the event_type matches any badge's event_trigger
+- If user doesn't already have the badge, insert into user_badges and trigger UI notification
+- For streak badges (streak_3, streak_7, etc.), call this function after updating streak count
+
+BADGE NOTIFICATION UI:
+When a badge is earned, show a full-screen overlay (not just a toast):
+  - Large emoji + badge name
+  - "+[XP] XP" 
+  - Badge description
+  - [AWESOME!] button to dismiss
+  - Make the overlay feel celebratory (use CSS animation: scale up from center)
+
+WEEKLY LEADERBOARD:
+TABLE: leaderboard_weekly
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  week_start DATE
+  xp_earned_this_week INTEGER DEFAULT 0
+  streak_this_week INTEGER DEFAULT 0
+  practices_this_week INTEGER DEFAULT 0
+
+- Update this table whenever a user earns XP
+- Leaderboard page: show top 20 users for current week
+- Group users by level so new players compete with peers, not Hall of Famers
+- Show the current user's rank even if they're outside top 20: "You're ranked #47 this week"
+- Reset weekly on Monday at midnight UTC
+
+CERTAINTY RATING TRACKER (UPGRADE):
+- Show a line chart of the user's Certainty Ratings over the past 30 days
+- Use lightweight charting (recharts or chart.js — check which is already in package.json)
+- Display on the dashboard below the progress section
+- Label chart title: "Your Mental Performance Trend"
+
+[2] 6-WEEK COURSE ARCHITECTURE
+Restructure the course navigation. The existing 42 lessons don't need to be rewritten
+yet — just reorganize how they appear in the UI and which ones are in which week.
+
+NEW COURSE STRUCTURE (navigation/UI only — content stays as-is for now):
+
+MODULE 0: DAY 1 FAST TRACK (already built in Phase 1, keep as-is)
+
+WEEK 1: FOUNDATION ESSENTIALS (condenses current Module 1)
+  - Lesson 1.1: The Bio-Computer Paradigm (combines lessons 1, 2, 3 from original Module 1)
+  - Lesson 1.2: The Four-Brain Model
+  - Lesson 1.3: The Performance Gap
+  - Week Action: Complete Brain Mapping Worksheet (existing Template 1)
+  - XP for completing Week 1: 200 XP
+
+WEEK 2: YOUR FIRST METASTORY (condenses current Module 2)
+  - Lesson 2.1: The Coordinate Problem
+  - Lesson 2.2: Metastory Architecture & Construction
+  - Week Action: Create first Metastory using template
+  - XP for completing Week 2: 150 XP
+  - UNLOCK: Springer Protocol becomes accessible after Week 2 completion
+    (remove the "must complete full course" lock — this is a critical fix)
+
+WEEK 3: FINDING YOUR ANCHOR (condenses current Module 3)
+  - Lesson 3.1: The Inner Anchor Point — Discovery + Calibration
+  - Lesson 3.2: IAP Activation
+  - Week Action: Identify and calibrate personal IAP
+  - XP for completing Week 3: 150 XP
+
+WEEK 4: DEBUGGING & BLOCKERS (current Module 4)
+  - Lesson 4.1: Understanding Blockers
+  - Lesson 4.2: The RNBR Protocol (Root Normal Base Reframing)
+  - Week Action: Complete RNBR worksheet for one blocker
+  - XP for completing Week 4: 400 XP
+
+WEEK 5: ELITE OBJECTIVES (combines Modules 5 + 6)
+  - Lesson 5.1: The UPL Concept + 120% Buffer
+  - Lesson 5.2: Creating Your EPSI
+  - Week Action: Create SA Objective + EPSI
+  - XP for completing Week 5: 400 XP
+
+WEEK 6: MASTERY & MAINTENANCE (current Module 7)
+  - Lesson 6.1: Full Daily Routine Deep Dive
+  - Lesson 6.2: Success/Failure Process Mastery
+  - Lesson 6.3: System Health Monitoring
+  - Week Action: 7-day perfect practice streak
+  - XP for completing Week 6: 500 XP + 'course_complete' badge trigger
+
+UNLOCKING LOGIC:
+  - Week 2 unlocks when Week 1 is complete
+  - Week 3 unlocks when Week 2 is complete
+  - Springer Protocol unlocks when Week 2 is complete (NOT end of course)
+  - Neural Lab is unlocked for ALL users immediately (no prerequisite)
+  - Advanced content (scenarios, position protocols) unlocks at Pro level
+
+LESSON TEMPLATE — THE 50/30/20 LAYOUT:
+Each existing lesson page should now render using this 3-section layout:
+  Section A (50% — visible by default): Core concept summary
+    - Label: "THE ESSENTIALS"
+    - Max 300 words + any video embed placeholder
+    - Ends with an action CTA: "YOUR ACTION:" [description of the week's action]
+  Section B (30% — visible by default): How to apply it
+    - Label: "PUT IT TO WORK"
+    - Practical steps, specific to baseball scenarios
+  Section C (20% — COLLAPSED by default): Deep dive
+    - Label: "WANT THE SCIENCE? (Optional)" with a [+] expand button
+    - Full academic/technical explanation lives here
+    - When clicked, expands inline with smooth animation
+
+This layout change applies to all existing lesson pages. The content doesn't change,
+just the presentation structure. Use the first ~300 words as Section A, next 200 as B,
+rest collapses into C.
+
+[3] PROGRESS EMAILS — TRIGGER LOGIC (backend only, no email UI needed yet)
+Create a Supabase Edge Function or server-side cron that marks which users need
+which progress email. Store email_queue table:
+
+TABLE: email_queue
+  id UUID PRIMARY KEY
+  user_id UUID REFERENCES users(id)
+  email_type TEXT (e.g., 'day_1_checkin', 'day_3_progress', 'day_7_badge', 'streak_at_risk')
+  scheduled_for TIMESTAMP
+  sent_at TIMESTAMP (NULL until sent)
+  created_at TIMESTAMP DEFAULT now()
+
+Schedule these email types automatically when users hit triggers:
+  On signup: schedule 'day_1_checkin' for +24 hours
+  After day_1_checkin sent: schedule 'day_3_progress' for signup +3 days
+  After 7-day streak: schedule 'day_7_badge' immediately
+  At 6 PM user's local time with no practice: schedule 'streak_at_risk' for that evening
+  At 14 days: schedule 'day_14_halfway'
+  At 21 days: schedule 'day_21_habit'
+  At 30 days: schedule 'day_30_milestone'
+
+NOTE: Do NOT actually send emails yet — just build the queue and scheduling logic.
+Email sending will be wired up in Phase 3 when we add the notification system.
+
+CONSTRAINTS:
+- Do NOT build community/forum features (Phase 3)
+- Do NOT build the payment/pricing system (Phase 4)
+- Do NOT build the Parent/Coach track (Phase 4)
+- Do NOT rebuild lesson content — just restructure the navigation and apply the 50/30/20 layout template
+
+STOP AFTER: Full gamification engine works (XP, levels, badges with celebration overlay,
+weekly leaderboard), course shows 6-week structure with Springer unlocking at Week 2,
+and lesson pages show the 50/30/20 layout. Test the complete badge award flow before stopping.
+Tell me when Phase 2 is complete and working.
